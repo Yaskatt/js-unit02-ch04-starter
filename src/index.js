@@ -2,24 +2,22 @@ const mainEl = document.getElementById('main');
 
 class Character {
   constructor(props) {
-    this._Name = props.name;
-    this._HP = props.hp;
-    this._initialHP = props.initialHP;
-    this._MP = props.mp;
-    this._initialMP = props.initialMP;
-    this._offensePower = props.offensePower;
-    this._defencePower = props.defencePower;
+    this.name = props.name;
+    this.hp = props.hp;
+    this.mp = props.mp;
+    this.offensePower = props.offensePower;
+    this.defencePower = props.defencePower;
   }
 
   showStatus() {
     /*
       キャラクターの名前、HP、MPを表示する。
     */
-   mainEl.innerHTML = `
+    mainEl.innerHTML = `
     <div>
-      <p><b>名前: </b>${this._Name}</p>
-      <p><b>HP: </b>${this._HP}</p>
-      <p><b>MP: </b>${this._MP}</p>
+      <p><b>名前: </b>${this.name}</p>
+      <p><b>HP: </b>${this.hp}</p>
+      <p><b>MP: </b>${this.mp}</p>
     </div>
    `
   }
@@ -30,16 +28,20 @@ class Character {
       死んでいない場合は相手に与えたダメージを表示。
       相手が死んだ場合は相手に与えたダメージと死んだことを表示する。
     */
-   if (defender._HP <= 0) {
-     mainEl.innerText = `${defender._Name}は故人です。攻撃できません。`;
-   } else {
-     const damage = this.calcAttackDamage();
-     mainEl.innerText = `${defender._Name}に。${damage}のダメージ！`;
-     if (this._HP <= damage) {
-      mainEl.innerText = `${defender._Name}は天に召されました。`;
-     }
-   }
-  //  プロパティの値の変え方は？
+    if (this.hp <= 0) {
+      mainEl.innerHTML = `<p>${this.name}は故人です。攻撃できません。</p>`;
+      return;
+    }
+    if (defender.hp <= 0) {
+      mainEl.innerHTML = `<p>${defender.name}は既に死亡しています。攻撃できません。</p>`;
+    } else {
+      const damage = this.calcAttackDamage(defender);
+      mainEl.innerHTML = `<p>${defender.name}に${damage}のダメージ！</p>`;
+      if (defender.hp <= damage) {
+        mainEl.innerHTML = `<p>${defender.name}に${damage}のダメージ！${defender.name}は天に召されました。</p>`;
+      }
+      defender.hp -= damage;
+    }
   }
 
   calcAttackDamage(defender) {
@@ -47,12 +49,12 @@ class Character {
       ダメージは単純に攻撃力から防御力を引いて計算する。
       ダメージが0未満の場合は、最低のダメージ1を与える。
     */
-   const damage = this._offensePower - defender._defencePower;
-   if (damage <= 0) {
-     return 1;
-   } else {
-     return damage;
-   }
+    const damage = this.offensePower - defender.defencePower;
+    if (damage <= 0) {
+      return 1;
+    } else {
+      return damage;
+    }
   }
 }
 
@@ -69,12 +71,18 @@ class Sorcerer extends Character {
       相手が死んでいる場合は回復が出来ないためその旨を表示する。
       MPが足りない場合はその旨を表示する。
     */
-    if (this._HP <= 0) {
-      mainEl.innerText = `${this._Name}は死亡しています。`;
-    } else if (target._HP <= 0) {
-      mainEl.innerText = `${target._Name}は既に死亡しています。回復できません。`;
-    } else if (this._MP < 3) {
-      mainEl.innerText = 'MPが足りません。';
+    if (this.hp <= 0) {
+      mainEl.innerHTML = `<p>${this.name}は故人です。動きません。</p>`;
+      return;
+    }
+    if (target.hp <= 0) {
+      mainEl.innerHTML = `<p>${target.name}は既に死亡しています。回復できません。</p>`;
+    } else if (this.mp < 3) {
+      mainEl.innerHTML = '<p>MPが足りません。healできません。</p>';
+    } else {
+      this.mp -= 3;
+      target.hp += 15;
+      mainEl.innerHTML = `<p>${target.name}のHPを15回復！</p>`;
     }
   }
 
@@ -86,6 +94,22 @@ class Sorcerer extends Character {
       相手が死んでいる場合は攻撃が出来ないためその旨を表示する。
       MPが足りない場合はその旨を表示する。
     */
+    if (this.hp <= 0) {
+      mainEl.innerHTML = `<p>${this.name}は死人です。動きません。</p>`;
+      return;
+    }
+    if (target.hp <= 0) {
+      mainEl.innerHTML = `<p>${target.name}は既に死亡しています。攻撃できません。</p>`;
+    } else if (this.mp < 2) {
+      mainEl.innerHTML = '<p>MPが足りません。fireできません。</p>';
+    } else {
+      mainEl.innerHTML = `<p>${target.name}に10のダメージ！</p>`;
+      if (target.hp <= 10) {
+        mainEl.innerHTML = `<p>${target.name}に10のダメージ！${target.name}は亡くなりました。</p>`;
+      }
+      this.mp -= 2;
+      target.hp -= 10;
+    }
   }
 }
 
